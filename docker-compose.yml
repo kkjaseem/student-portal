@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=${DATABASE_URL}
+      - IDFY_API_KEY=${IDFY_API_KEY}
+      - IDFY_ACCOUNT_ID=${IDFY_ACCOUNT_ID}
+      - IDFY_BASE_URL=${IDFY_BASE_URL}
+      - IDFY_CREATE_TASK_URL=${IDFY_CREATE_TASK_URL}
+      - BACKEND_URL=${BACKEND_URL}
+      - FRONTEND_URL=http://localhost:5173
+    restart: unless-stopped
+
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev -- --host"
+    environment:
+      - VITE_API_URL=http://localhost:3001/api
+    depends_on:
+      - backend
